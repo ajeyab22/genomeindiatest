@@ -54,10 +54,9 @@ if [ ! -d "decompression_outputs/${input_arg}" ]; then
     mkdir "decompression_outputs/${input_arg}"
 fi
 tar_cmd="tar -xzf ${input_file} -C ${folder}/${compress_folder} --transform='s/^.*\///'"
-echo "Starting decompression on $basename."
 eval $tar_cmd 
 if ! [ $? -eq 0 ]; then
-    echo "Error encountered while fetching details from .gi file. Exiting."
+    echo "Error encountered. Exiting."
     exit 1
 fi
 var_num1="${folder}/${input_arg}/${input_arg}_1."
@@ -69,7 +68,6 @@ checkpoint_file="${folder}/${input_arg}/${input_arg}_decompress.checkpoint"
 log_file="${folder}/${input_arg}/${input_arg}_decompress.log"
 tag_file="${folder}/${compress_folder}/${input_arg}_tags.bam"
 map_file="${folder}/${compress_folder}/${input_arg}_map.txt"
-
 #if [ ! -f ${tag_file} ];then
 #    metadata_files_flag=1
 #fi
@@ -155,16 +153,16 @@ if ! grep -qF "Bam files for each lane" "$checkpoint_file"; then
     process_lane() {
         i=$1
         folder="decompression_outputs"
-	    input_arg=$2
+	input_arg=$2
         log_file="${folder}/${input_arg}/${input_arg}_decompress.log"
-	    lane_var="Lane${i}.${i}"
+	lane_var="Lane${i}.${i}"
         picard_cmd="java -jar tools/picard.jar FastqToSam --FASTQ ${folder}/${input_arg}/${input_arg}_1.${i}.fastq --FASTQ2 ${folder}/${input_arg}/${input_arg}_2.${i}.fastq --OUTPUT ${folder}/${input_arg}/${input_arg}_${i}.bam -SM ${input_arg} --VERBOSITY ERROR -RG "$lane_var""
-        if $picard_cmd >> "$log_file" 2>&1 ; then
-            echo "Bam file for lane ${i} created..."
-        else
-            echo "Unknown error while creating lane bam file for lane ${i}. Exiting..."
-            exit 1
-        fi
+	if $picard_cmd >> "$log_file" 2>&1 ; then
+		echo "Bam file for lane ${i} created..."
+	else
+		echo "Unknown error while creating lane bam file for lane ${i}. Exiting..."
+		exit 1
+	fi
     }
 
     export -f process_lane

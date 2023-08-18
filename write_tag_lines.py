@@ -2,7 +2,7 @@ import pysam
 import sys
 
 input_file=sys.argv[1]
-genome_id=input_file.split("/")[-1].split("_")[0]
+genome_id=input_file.split("/")[-1].split(".")[0].split("_")[0]
 output_file="compression_outputs/"+genome_id+"/"+genome_id+"_tags.bam"
 line_file="compression_outputs/"+genome_id+"/"+genome_id+"_map.txt"
 line_list=[]
